@@ -19,13 +19,16 @@
 // export default HelloWorldApp;
 
 // Barcode Scan Test
-// Example found at: https://docs.expo.dev/versions/latest/sdk/bar-code-scanner/ 
+// Example found at: https://docs.expo.dev/versions/latest/sdk/bar-code-scanner/
+// Example adapted for our usecase 
 
 import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, Button } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-export default function App() {
+function BarcodeScreen({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
 
@@ -59,6 +62,31 @@ export default function App() {
   );
 }
 
+function HomeScreen({ navigation }) {
+  return (
+  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text>Home Screen</Text>
+      <Button
+        title="Scan a Barcode"
+        onPress={() => navigation.navigate('BarScan')}
+      />
+    </View>
+    );
+}
+
+const Stack = createNativeStackNavigator();
+
+function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="BarScan" component={BarcodeScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -67,3 +95,4 @@ const styles = StyleSheet.create({
   },
 });
 
+export default App;

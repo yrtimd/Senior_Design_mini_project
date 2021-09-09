@@ -1,10 +1,10 @@
 {
   "devToolsPort": 19002,
   "expoServerPort": null,
-  "packagerPort": null,
+  "packagerPort": 19000,
   "packagerPid": null,
-  "expoServerNgrokUrl": null,
-  "packagerNgrokUrl": null,
-  "ngrokPid": null,
+  "expoServerNgrokUrl": "https://4r-djv.anonymous.project.exp.direct",
+  "packagerNgrokUrl": "https://packager.4r-djv.anonymous.project.exp.direct",
+  "ngrokPid": 27130,
   "webpackServerPort": null
 }
