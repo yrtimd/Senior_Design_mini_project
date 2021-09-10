@@ -1,84 +1,98 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { Component } from 'react'
-import axios from "axios";
-import {
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  View,
-} from 'react-native'
+import React, { Component } from 'react';
+import axios from 'axios';
+import { StyleSheet, TextInput,TouchableOpacity, Text, View } from 'react-native';
+
+const baseURL = 'https://api.nal.usda.gov/fdc/v1/foods/search?pageSize=2&api_key=IdOC1aXnE1eBrwNf7OzdqKdA4Flk5ib03AmyuGDo';
 
 
-class GetRequest extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            totalReactPackages: null
-        };
-    }
-
-    componentDidMount() {
-        // Simple GET request using axios
-        axios.get('https://api.npms.io/v2/search?q=react')
-            .then(response => this.setState({ totalReactPackages: response.data.total }));
-    }
-
-    render() {
-        const { totalReactPackages } = this.state;
-        return (
-            <div className="card text-center m-3">
-                <h5 className="card-header">Simple GET Request</h5>
-                <div className="card-body">
-                    Total react packages: {totalReactPackages}
-                </div>
-            </div>
-        );
-    }
+const Search = () => {
+    return <div>Hello world!</div>
 }
 
-export { GetRequest }; 
 
 class App extends Component {
   state = {
     count: 0,
-    api_data: 'a'
-  }
+    api_data: 'a',
+    APIQuery: '',
+    email: '',
+  };
 
   onPress = () => {
     this.setState({
-      count: this.state.count + 1
-    })
-  }
-
-  componentDidMount() {
-        // Simple GET request using axios
-        axios.get('https://api.npms.io/v2/search?q=react')
-            .then(response => {api_data;//console.log(response.data);
-      })
-        .catch(error => {
-         console.log(error);
+      count: this.state.count + 1,
     });
-    }
+  };
 
+onPushAPI = () => {
+  //componentDidMount() {
+    // Simple GET request using axios
+    axios
+      .get(baseURL, {
+        params: {
+          query: 'apple'
+        }
+      })
+      .then((response) => {
+        this.setState({
+          api_data: response.data,
+        }),
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  //}
+} //End of test API
 
+  login = (email) => {
+        //alert('email: ' + email + ' password: ' + pass)
+    axios
+      .get(baseURL, {
+        params: {
+          query: email
+        }
+      })
+      .then((response) => {
+        this.setState({
+          api_data: response.data,
+        }),
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+} //More functional API QUERRY
 
- render() {
+  handleEmail = (text) => {
+      this.setState({ email: text })
+   }
+
+  render() {
     return (
       <View style={styles.container}>
+        <TextInput style = {styles.input}
+               underlineColorAndroid = "transparent"
+               placeholder = "Email"
+               placeholderTextColor = "#9a73ef"
+               autoCapitalize = "none"
+               onChangeText = {this.handleEmail}/>
         <TouchableOpacity
-         style={styles.button}
-         onPress={this.onPress}
-        >
-         <Text>Click me</Text>
+               style = {styles.submitButton}
+               onPress = {
+                  () => this.login(this.state.email)
+               }>
+               <Text style = {styles.submitButtonText}> Submit </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={this.onPushAPI}>
+          <Text>Click me</Text>
         </TouchableOpacity>
         <View>
-          <Text>
-            You clicked { this.api_data } times
-          </Text>
+          <Text>You clicked { this.state.api_data.totalPages }  times</Text>
         </View>
       </View>
-    )
+    );
   }
 }
 
@@ -92,8 +106,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#DDEDDD',
     padding: 10,
-    marginBottom: 10
-  }
-})
+    marginBottom: 10,
+  },
+  submitButton: {
+      backgroundColor: '#7a42f4',
+      padding: 10,
+      margin: 15,
+      height: 40,
+   },
+  input: {
+      margin: 15,
+      height: 40,
+      borderColor: '#7a42f4',
+      borderWidth: 1
+  },
+});
 
 export default App;
