@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { Component } from 'react';
 import axios from 'axios';
-import { StyleSheet, TextInput,TouchableOpacity, Text, View } from 'react-native';
+import { FlatList, StyleSheet, TextInput,TouchableOpacity, Text, View } from 'react-native';
 
 const baseURL = 'https://api.nal.usda.gov/fdc/v1/foods/search?pageSize=2&api_key=IdOC1aXnE1eBrwNf7OzdqKdA4Flk5ib03AmyuGDo';
 
@@ -16,7 +16,7 @@ class App extends Component {
     count: 0,
     api_data: 'a',
     APIQuery: '',
-    email: '',
+    food_name: '',
   };
 
   onPress = () => {
@@ -46,27 +46,22 @@ onPushAPI = () => {
   //}
 } //End of test API
 
-  login = (email) => {
-        //alert('email: ' + email + ' password: ' + pass)
+  callApi = (food_name) => {
     axios
       .get(baseURL, {
         params: {
-          query: email
+          query: food_name
         }
       })
       .then((response) => {
         this.setState({
           api_data: response.data,
-        }),
-        console.log(response.data);
+        });
       })
-      .catch((error) => {
-        console.log(error);
-      });
 } //More functional API QUERRY
 
-  handleEmail = (text) => {
-      this.setState({ email: text })
+  handleFoodName = (text) => {
+      this.setState({ food_name: text })
    }
 
   render() {
@@ -74,22 +69,28 @@ onPushAPI = () => {
       <View style={styles.container}>
         <TextInput style = {styles.input}
                underlineColorAndroid = "transparent"
-               placeholder = "Email"
+               placeholder = "Food Name"
                placeholderTextColor = "#9a73ef"
                autoCapitalize = "none"
-               onChangeText = {this.handleEmail}/>
+               onChangeText = {this.handleFoodName}/>
         <TouchableOpacity
                style = {styles.submitButton}
                onPress = {
-                  () => this.login(this.state.email)
+                  () => this.callApi(this.state.food_name)
                }>
                <Text style = {styles.submitButtonText}> Submit </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={this.onPushAPI}>
-          <Text>Click me</Text>
-        </TouchableOpacity>
         <View>
-          <Text>You clicked { this.state.api_data.totalPages }  times</Text>
+          <Text>There are { this.state.api_data.totalPages }  total pages</Text>
+        </View>
+        <View>
+          <FlatList
+            data={this.state.api_data.foods}
+            keyExtractor={ item => (item.fdcId).foodNutrients}
+            renderItem={({ item }) => (
+              <Text>{(item) + '. '}</Text>
+            )}
+          />
         </View>
       </View>
     );
@@ -101,12 +102,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  button: {
-    alignItems: 'center',
-    backgroundColor: '#DDEDDD',
-    padding: 10,
-    marginBottom: 10,
   },
   submitButton: {
       backgroundColor: '#7a42f4',
