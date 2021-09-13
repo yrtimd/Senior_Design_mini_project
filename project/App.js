@@ -82,9 +82,10 @@ onPushAPI = () => {
                }>
                <Text style = {styles.submitButtonText}> Submit </Text>
         </TouchableOpacity>
-        <Text>There are { this.state.api_data.totalPages }  total pages</Text>
+        <Text
+        style = {styles.container}
+        >There are { this.state.api_data.totalPages }  total pages</Text>
         <FlatList
-          style = {styles.listDisplay}
           data={this.state.api_data.foods}
           keyExtractor={ item => ((item))}
           renderItem={({ item }) => (
