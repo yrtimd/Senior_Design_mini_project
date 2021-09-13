@@ -64,6 +64,8 @@ onPushAPI = () => {
       this.setState({ food_name: text })
    }
 
+  
+
   render() {
     return (
       <View style={styles.container}>
@@ -86,9 +88,9 @@ onPushAPI = () => {
         <View>
           <FlatList
             data={this.state.api_data.foods}
-            keyExtractor={ item => (item.fdcId).foodNutrients}
+            keyExtractor={ item => ((item))}
             renderItem={({ item }) => (
-              <Text>{(item) + '. '}</Text>
+              <Text>{item.foodNutrients[3].nutrientNumber + 'KCal . '}</Text>
             )}
           />
         </View>
