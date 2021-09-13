@@ -82,18 +82,15 @@ onPushAPI = () => {
                }>
                <Text style = {styles.submitButtonText}> Submit </Text>
         </TouchableOpacity>
-        <View>
-          <Text>There are { this.state.api_data.totalPages }  total pages</Text>
-        </View>
-        <View>
-          <FlatList
-            data={this.state.api_data.foods}
-            keyExtractor={ item => ((item))}
-            renderItem={({ item }) => (
-              <Text>{item.foodNutrients[3].nutrientNumber + 'KCal . '}</Text>
-            )}
-          />
-        </View>
+        <Text>There are { this.state.api_data.totalPages }  total pages</Text>
+        <FlatList
+          style = {styles.listDisplay}
+          data={this.state.api_data.foods}
+          keyExtractor={ item => ((item))}
+          renderItem={({ item }) => (
+            <Text>{item.foodNutrients[3].nutrientNumber + 'KCal . '}</Text>
+          )}
+        />
       </View>
     );
   }
@@ -116,6 +113,11 @@ const styles = StyleSheet.create({
       height: 40,
       borderColor: '#7a42f4',
       borderWidth: 1
+  },
+  listDisplay: {
+      margin: 300,
+      height: 40,
+      borderWidth: 10
   },
 });
 
