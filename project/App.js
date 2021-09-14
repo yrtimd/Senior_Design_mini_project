@@ -9,9 +9,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 const baseURL = 'https://api.nal.usda.gov/fdc/v1/foods/search?pageSize=2&api_key=IdOC1aXnE1eBrwNf7OzdqKdA4Flk5ib03AmyuGDo';
 
 
-const Search = () => {
-    return <div>Hello world!</div>
-}
+// const Search = () => {
+//     return <div>Hello world!</div>
+// }
+
+let scannedFoods = [];
 
 function BarcodeScreen({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
@@ -24,9 +26,34 @@ function BarcodeScreen({ navigation }) {
     })();
   }, []);
 
+  callAPI = (barcode_data) => {
+      axios
+        .get(baseURL, {
+        params: {
+          query: barcode_data
+        }
+      })
+      .then((response) => {
+        scannedFoods.push(response);
+      })
+    } //More functional API QUERRY
+
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
-    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    let temp = "";
+    if (data.length == 13) //fixing an issue with the barcode scanner adding a zero to the beginning of UPC-A codes
+    {
+      temp = data.substring(1,13);
+      callAPI(temp);
+    }
+    else
+    {
+      callAPI(data);
+    }
+    alert(`Bar code with type ${type} and data ${data} has been scanned and added to your scanned foods.`);
+    console.log(scannedFoods);
+    console.log("\n\n\n\n\n\n\n\n\n\n");
+    console.log(scannedFoods[0].data.foods);
   };
 
   if (hasPermission === null) {
@@ -47,93 +74,69 @@ function BarcodeScreen({ navigation }) {
   );
 }
 
-class HomeScreen extends Component {
-  state = {
-    count: 0,
-    api_data: 'a',
-    APIQuery: '',
-    food_name: '',
-  };
+function HomeScreen({ navigation }) {
+  // state = {
+  //   count: 0,
+  //   api_data: 'a',
+  //   APIQuery: '',
+  //   food_name: '',
+  // };
 
-  onPress = () => {
-    this.setState({
-      count: this.state.count + 1,
-    });
-  };
+//   onPress = () => {
+//     this.setState({
+//       count: this.state.count + 1,
+//     });
+//   };
 
-onPushAPI = () => {
-  //componentDidMount() {
-    // Simple GET request using axios
-    axios
-      .get(baseURL, {
-        params: {
-          query: 'apple'
-        }
-      })
-      .then((response) => {
-        this.setState({
-          api_data: response.data,
-        }),
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  //}
-  } //End of test API
+// onPushAPI = () => {
+//   componentDidMount() {
+//     // Simple GET request using axios
+//     axios
+//       .get(baseURL, {
+//         params: {
+//           query: 'apple'
+//         }
+//       })
+//       .then((response) => {
+//         this.setState({
+//           api_data: response.data,
+//         }),
+//         console.log(response.data);
+//       })
+//       .catch((error) => {
+//         console.log(error);
+//       });
+//   //}
+//   } //End of test API
 
-  callApi = (food_name) => {
-    axios
-      .get(baseURL, {
-        params: {
-          query: food_name
-        }
-      })
-      .then((response) => {
-        this.setState({
-          api_data: response.data,
-        });
-      })
-  } //More functional API QUERRY
+  // callApi = (food_name) => {
+  //   axios
+  //     .get(baseURL, {
+  //       params: {
+  //         query: food_name
+  //       }
+  //     })
+  //     .then((response) => {
+  //       this.setState({
+  //         api_data: response.data,
+  //       });
+  //     })
+  // } //More functional API QUERRY
 
-  handleFoodName = (text) => {
-      this.setState({ food_name: text })
-  }
-  render() {
+  // handleFoodName = (text) => {
+  //     this.setState({ food_name: text })
+  // }
+  // render() {
     return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Home Screen</Text>
-        <Button
-          title="Scan a Barcode"
-          onPress={() => this.navigation.navigate('BarScan')}
-        />
-        <TextInput style = {styles.input}
-                underlineColorAndroid = "transparent"
-                placeholder = "Food Name"
-                placeholderTextColor = "#9a73ef"
-                autoCapitalize = "none"
-                onChangeText = {this.handleFoodName}/>
-          <TouchableOpacity
-                style = {styles.submitButton}
-                onPress = {
-                    () => this.callApi(this.state.food_name)
-                }>
-                <Text style = {styles.submitButtonText}> Submit </Text>
-          </TouchableOpacity>
-          <Text
-          style = {styles.container}
-          >There are { this.state.api_data.totalPages }  total pages</Text>
-          <FlatList
-            data={this.state.api_data.foods}
-            style={styles.listDisplay}
-            keyExtractor={ item => ((item))}
-            renderItem={({ item }) => (
-              <Text>{item.foodNutrients[3].nutrientNumber + 'KCal . '}</Text>
-            )}
-        />
+      <Text>Home Screen</Text>
+      <Button
+        title="Scan a Barcode"
+        onPress={() => navigation.navigate('Scan')}
+      />
     </View>
     );
-  }
+  // }
 }
 
 const Stack = createNativeStackNavigator();
@@ -177,7 +180,7 @@ function App() {
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Home">
           <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="BarScan" component={BarcodeScreen} />
+          <Stack.Screen name="Scan" component={BarcodeScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     );
