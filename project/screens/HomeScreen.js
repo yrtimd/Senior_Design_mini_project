@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useContext } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Button } from 'react-native';
 
 import { IconButton } from '../components';
 import Firebase from '../config/firebase';
@@ -8,7 +8,7 @@ import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvide
 
 const auth = Firebase.auth();
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   const { user } = useContext(AuthenticatedUserContext);
   const handleSignOut = async () => {
     try {
@@ -25,11 +25,17 @@ export default function HomeScreen() {
         <IconButton
           name='logout'
           size={24}
-          color='#fff'
+          // color='#fff'
           onPress={handleSignOut}
         />
       </View>
-      <Text style={styles.text}>Your UID is: {user.uid} </Text>
+     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+       <Text>Home Screen</Text>
+        <Button
+          title="Scan a Barcode"
+          onPress={() => navigation.navigate('Scan')}
+        />
+      </View>
     </View>
   );
 }
@@ -37,7 +43,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e93b81',
     paddingTop: 50,
     paddingHorizontal: 12
   },
@@ -50,11 +55,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#fff'
   },
   text: {
     fontSize: 16,
     fontWeight: 'normal',
-    color: '#fff'
   }
 });
