@@ -10,35 +10,87 @@ import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvide
 
 const auth = Firebase.auth();
 var FoodItem = [];
-let scannedFoods = [{
-            "description" : 'description',
-            "labels" : {"calories" : {"value" : 'calories'}},
-            "ingredients" : 'ingredients'
-          }];
+let scannedFoods = [];
+let maxCalories = [];
+
+let tempFoodScan = [];
+
+const firstURL = 'https://api.nal.usda.gov/fdc/v1/foods/search?pageSize=2&api_key=IdOC1aXnE1eBrwNf7OzdqKdA4Flk5ib03AmyuGDo&format=abridged';
+const secondURL = 'https://api.nal.usda.gov/fdc/v1/food/';
+const secondURL_v2 = '?pageSize=1&api_key=IdOC1aXnE1eBrwNf7OzdqKdA4Flk5ib03AmyuGDo';
+
+
+  const callAPI = async (barcode_data, opt) => {
+      var baseURL;
+      if (opt == 1) {
+        baseURL = secondURL.concat(barcode_data, secondURL_v2);
+      } else {
+        baseURL = firstURL;
+      }
+
+      await axios
+        .get(baseURL, {
+        params: {
+          query: barcode_data
+        }
+      })
+      .then((response) => {
+
+        if (opt == 1) {
+          tempFoodScan = {
+            "description" : response.data.description,
+            "labels" : response.data.labelNutrients,
+            "ingredients" : response.data.ingredients
+          }
+          //scannedFoods.push(tempFoodScan)
+        } else {
+          tempFoodScan = response.data,
+          this.fdcId = tempFoodScan.foods[0].fdcId
+          //console.log(tempFoodScan)
+        }   
+      })
+      .catch(err => console.error(err));
+    } //More functional API QUERRY
+
 
 function existCheck(SingleItem) {
   const dataType = typeof(SingleItem);
   
-  console.log(scannedFoods)
-  //console.log(typeof scannedFoods)
-
   if (typeof scannedFoods !== 'undefined' && typeof SingleItem !== 'undefined') {
-    //return (JSON.stringify(FoodItem.description))
-    scannedFoods.push(SingleItem)
-    console.log('DdDDDDDDDDDdDDDDDDDD')
+    if (typeof SingleItem.description !== 'undefined')
+    {
+      scannedFoods.push(SingleItem)
+    }
+
     return (
-
-
       scannedFoods.map((item, index) =>
-        <View style={styles.rows} key={index.toString()}>
+        <View style={styles.mapRows} key={index.toString()}>
         <Text>{item.description} </Text>
         <Text>{item.labels.calories.value} </Text>
         </View>
-
       )
     )
   }
 }
+
+function countCalories() {
+
+  maxCalories = 0
+  if(typeof scannedFoods !== undefined && typeof scannedFoods.description !== 'undefined'){
+    scannedFoods.map((item, index) => 
+      maxCalories += tem.labels.calories.value
+    )
+  console.log(maxCalories)
+  return(null)
+  }
+}
+
+function saveRecipe(fileName) {
+  //var fs = require('react-native-fs')
+  //fs.writeFile("test.json", scannedFoods);
+  //return (null)
+}
+
 
 
 
@@ -52,6 +104,18 @@ export default function HomeScreen({ route, navigation }) {
       console.log(error);
     }
   };
+
+  function clearList() {
+  scannedFoods = [];
+
+  return(navigation.navigate('Home'))
+}
+
+  function removeLast() {
+    scannedFoods.pop();
+
+  return(navigation.navigate('Home'))
+  }
 
 
   FoodItem = route.params;
@@ -74,19 +138,20 @@ export default function HomeScreen({ route, navigation }) {
           title="Scan a Barcode"
           onPress={() => navigation.navigate('Scan')}
         />
+        <Button
+          title="Clear Current List"
+          onPress={() => clearList()}
+        />
+        <Button
+          title="Remove Last Food Item"
+          onPress={() => removeLast()}
+        />
+        <View style={styles.row} >
+          <Text>Description ------</Text>
+          <Text>--------- Calories (Cal) {console.log(scannedFoods)}</Text>
+        </View>
+        {existCheck(FoodItem)} 
       </View>
-
-
-              <Text>  {console.log('HIHIHIHIHIHIHIHIHIHIHIHI')}  </Text>
-      <View style={ { flex: 1, justifyContent: 'flex-start'}}>
-        {existCheck(FoodItem)}
-      </View>
-
-
-
-      
-
-
     </View>
   );
 }
@@ -111,13 +176,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'normal',
   },
-  rows: {
-    display: 'flex',
+  mapRows: {
     flexDirection: 'row',
-    flex: 1,
+    //flex: 1,
     justifyContent: 'space-around',
-    alignItems : 'center',
-    flexWrap: 'wrap'
+    alignItems : 'flex-start',
+    backgroundColor: 'steelblue',
+    alignContent : 'flex-start'
   }
 });
 

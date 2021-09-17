@@ -90,14 +90,14 @@ export default function BarcodeScreen({ navigation }) {
     return <Text>No access to camera</Text>;
   }
 
-
+//{scanned && <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />}
   return (
     <View style={styles.container}>
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
         style={StyleSheet.absoluteFillObject}
       />
-      {scanned && <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />}
+      {scanned && <Text> Please Wait </Text>}
     </View>
   );
 }
