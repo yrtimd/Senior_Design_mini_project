@@ -11,6 +11,6 @@ This will install the Expo CLI on your machine.
 3. Install Expo Go app.
 On either an iOS or Android device, install the Expo Go app.
 This will allow you to run the app on your phone for testing.
-4. In Powershell or Terminal, simply run npm start.
+4. In Powershell or Terminal, simply run the following: npm start.
 This will run the app and give you a QR code which you can scan with either the default camera app on iOS or a QR scanner app on Android.
 Once this QR code is scanned, the app will load on Expo Go on your mobile device, and you can begin testing!
