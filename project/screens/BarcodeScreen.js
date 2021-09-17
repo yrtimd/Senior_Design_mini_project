@@ -15,7 +15,7 @@ function foodItem(brand, desc, prot, fat, carbs, cal, sugar, fiber) { //object p
   this.sugar = sugar;
   this.fiber = fiber;
 }
-let foods = []; //array to store foodItems
+window.foods = []; //array to store foodItems
 
 const baseURL = 'https://api.nal.usda.gov/fdc/v1/foods/search?pageSize=2&api_key=IdOC1aXnE1eBrwNf7OzdqKdA4Flk5ib03AmyuGDo';
 
@@ -89,15 +89,6 @@ export default function BarcodeScreen({ navigation }) {
     let newFood = new foodItem(scannedFood.data.foods[0].brandName, scannedFood.data.foods[0].description, prot, fat, carbs, cal, sugar, fiber);
     foods.push(newFood);
     alert(`Bar code with type ${type} and data ${data} has been scanned and added to your scanned foods.`);
-    console.log(foods);
-    // console.log(scannedFood.data.foods[0].foodNutrients[0]);
-    // console.log("\n\n\n\n\n\n\n\n\n\n");
-    // // * ALL DATA IS PER 100G SERVING, NOT WHAT THE NUTRITION LABEL STATES FOR SERVING SIZE!!!! *
-    // console.log(scannedFoods.data.foods[0].foodNutrients[0]); //this indexing gets us the "protein" value in the scanned food as JSON object
-    // console.log("\n");
-    // console.log(scannedFoods.data.foods[0].foodNutrients[1]); //this indexing gets us the "fat" value in the scanned food as JSON object
-    // console.log("\n");
-    // console.log(scannedFoods.data.foods[0].foodNutrients[2]); //this indexing gets us the "carbs" value in the scanned food as JSON object
   };
 
   if (hasPermission === null) {
