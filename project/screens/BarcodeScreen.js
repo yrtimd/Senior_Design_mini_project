@@ -3,7 +3,19 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import React, { Component, useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 
-let scannedFoods = [];
+let scannedFood;
+
+function foodItem(brand, desc, prot, fat, carbs, cal, sugar, fiber) { //object prototype for each food item scanned
+  this.brand = brand;
+  this.desc = desc;
+  this.prot = prot;
+  this.fat = fat;
+  this.carbs = carbs;
+  this.cal = cal;
+  this.sugar = sugar;
+  this.fiber = fiber;
+}
+let foods = []; //array to store foodItems
 
 const baseURL = 'https://api.nal.usda.gov/fdc/v1/foods/search?pageSize=2&api_key=IdOC1aXnE1eBrwNf7OzdqKdA4Flk5ib03AmyuGDo';
 
@@ -18,34 +30,74 @@ export default function BarcodeScreen({ navigation }) {
     })();
   }, []);
 
-  const callAPI = (barcode_data) => {
-      axios
+  const callAPI = async (barcode_data) => {
+      await axios
         .get(baseURL, {
         params: {
           query: barcode_data
         }
       })
       .then((response) => {
-        scannedFoods.push(response);
+        scannedFood = response; //parse the JSON api call into an object
       })
     } //More functional API QUERRY
 
-  const handleBarCodeScanned = ({ type, data }) => {
+  const handleBarCodeScanned = async ({ type, data }) => {
     setScanned(true);
     let temp = "";
     if (data.length == 13) //fixing an issue with the barcode scanner adding a zero to the beginning of UPC-A codes
     {
       temp = data.substring(1,13);
-      callAPI(temp);
+      await callAPI(temp);
     }
     else
     {
-      callAPI(data);
+      await callAPI(data);
     }
+    // console.log(scannedFood);
+    let prot, fat, carbs, cal, sugar, fiber;
+    let protObj = scannedFood.data.foods[0].foodNutrients.find(element => element.nutrientName === 'Protein');
+    if (typeof protObj === 'undefined')
+      prot = null;
+    else
+      prot = protObj.value;
+    let fatObj = scannedFood.data.foods[0].foodNutrients.find(element => element.nutrientName === 'Total lipid (fat)');
+    if (typeof fatObj === 'undefined')
+      fat = null;
+    else
+      fat = fatObj.value;
+    let carbsObj = scannedFood.data.foods[0].foodNutrients.find(element => element.nutrientName === 'Carbohydrate, by difference');
+    if (typeof carbsObj === 'undefined')
+      carbs = null;
+    else
+      carbs = carbsObj.value;
+    let calObj = scannedFood.data.foods[0].foodNutrients.find(element => element.nutrientName === 'Energy');
+    if (typeof calObj === 'undefined')
+      cal = null;
+    else
+      cal = calObj.value;
+    let sugarObj = scannedFood.data.foods[0].foodNutrients.find(element => element.nutrientName === 'Sugars, total including NLEA');
+    if (typeof sugarObj === 'undefined')
+      sugar = null;
+    else
+      sugar = sugarObj.value;
+    let fiberObj = scannedFood.data.foods[0].foodNutrients.find(element => element.nutrientName === 'Fiber, total dietary');
+    if (typeof fiberObj === 'undefined')
+      fiber = null;
+    else
+      fiber = fiberObj.value;
+    let newFood = new foodItem(scannedFood.data.foods[0].brandName, scannedFood.data.foods[0].description, prot, fat, carbs, cal, sugar, fiber);
+    foods.push(newFood);
     alert(`Bar code with type ${type} and data ${data} has been scanned and added to your scanned foods.`);
-    console.log(scannedFoods);
-    console.log("\n\n\n\n\n\n\n\n\n\n");
-    console.log(scannedFoods[0].data.foods);
+    console.log(foods);
+    // console.log(scannedFood.data.foods[0].foodNutrients[0]);
+    // console.log("\n\n\n\n\n\n\n\n\n\n");
+    // // * ALL DATA IS PER 100G SERVING, NOT WHAT THE NUTRITION LABEL STATES FOR SERVING SIZE!!!! *
+    // console.log(scannedFoods.data.foods[0].foodNutrients[0]); //this indexing gets us the "protein" value in the scanned food as JSON object
+    // console.log("\n");
+    // console.log(scannedFoods.data.foods[0].foodNutrients[1]); //this indexing gets us the "fat" value in the scanned food as JSON object
+    // console.log("\n");
+    // console.log(scannedFoods.data.foods[0].foodNutrients[2]); //this indexing gets us the "carbs" value in the scanned food as JSON object
   };
 
   if (hasPermission === null) {
