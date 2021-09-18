@@ -7,51 +7,18 @@ import { IconButton } from '../components';
 import Firebase from '../config/firebase';
 import { AuthenticatedUserContext } from '../navigation/AuthenticatedUserProvider';
 
-
+var userID;
 const auth = Firebase.auth();
+const database = Firebase.database();
 var FoodItem = [];
 let scannedFoods = [];
 let maxCalories = [];
 
-let tempFoodScan = [];
-
-const firstURL = 'https://api.nal.usda.gov/fdc/v1/foods/search?pageSize=2&api_key=IdOC1aXnE1eBrwNf7OzdqKdA4Flk5ib03AmyuGDo&format=abridged';
-const secondURL = 'https://api.nal.usda.gov/fdc/v1/food/';
-const secondURL_v2 = '?pageSize=1&api_key=IdOC1aXnE1eBrwNf7OzdqKdA4Flk5ib03AmyuGDo';
-
-
-  const callAPI = async (barcode_data, opt) => {
-      var baseURL;
-      if (opt == 1) {
-        baseURL = secondURL.concat(barcode_data, secondURL_v2);
-      } else {
-        baseURL = firstURL;
-      }
-
-      await axios
-        .get(baseURL, {
-        params: {
-          query: barcode_data
-        }
-      })
-      .then((response) => {
-
-        if (opt == 1) {
-          tempFoodScan = {
-            "description" : response.data.description,
-            "labels" : response.data.labelNutrients,
-            "ingredients" : response.data.ingredients
-          }
-          //scannedFoods.push(tempFoodScan)
-        } else {
-          tempFoodScan = response.data,
-          this.fdcId = tempFoodScan.foods[0].fdcId
-          //console.log(tempFoodScan)
-        }   
-      })
-      .catch(err => console.error(err));
-    } //More functional API QUERRY
-
+function writeUserData(userID, scannedFoods) {
+  database.ref('users/' + userID).set({
+      list: scannedFoods
+  });
+}
 
 function existCheck(SingleItem) {
   const dataType = typeof(SingleItem);
@@ -61,15 +28,8 @@ function existCheck(SingleItem) {
     {
       scannedFoods.push(SingleItem)
     }
-
-    return (
-      scannedFoods.map((item, index) =>
-        <View style={styles.mapRows} key={index.toString()}>
-        <Text>{item.description} </Text>
-        <Text>{item.labels.calories.value} </Text>
-        </View>
-      )
-    )
+    writeUserData(userID, scannedFoods);
+    return (null);
   }
 }
 
@@ -97,6 +57,7 @@ function saveRecipe(fileName) {
 
 export default function HomeScreen({ route, navigation }) {
   const { user } = useContext(AuthenticatedUserContext);
+  userID = user.uid;
   const handleSignOut = async () => {
     try {
       await auth.signOut();
@@ -107,18 +68,19 @@ export default function HomeScreen({ route, navigation }) {
 
   function clearList() {
   scannedFoods = [];
-
+  writeUserData(userID, scannedFoods);
   return(navigation.navigate('Home'))
-}
+  }
 
   function removeLast() {
     scannedFoods.pop();
-
-  return(navigation.navigate('Home'))
+    writeUserData(userID, scannedFoods);
+    return(navigation.navigate('Home'))
   }
 
 
   FoodItem = route.params;
+  existCheck(FoodItem);
   return (
 
     <View style={styles.container}>
@@ -148,10 +110,15 @@ export default function HomeScreen({ route, navigation }) {
         />
         <View style={styles.row} >
           <Text>Description ------</Text>
-          <Text>--------- Calories (Cal) {console.log(scannedFoods)}</Text>
+          <Text>--------- Calories (Cal)</Text>
         </View>
-        {existCheck(FoodItem)} 
-      </View>
+        {scannedFoods.map((item, index) =>
+        <View style={styles.mapRows} key={index.toString()}>
+        <Text>{item.description} </Text>
+        <Text>{item.labels.calories.value} </Text>
+        </View>
+        )} 
+        </View>
     </View>
   );
 }
@@ -185,11 +152,3 @@ const styles = StyleSheet.create({
     alignContent : 'flex-start'
   }
 });
-
-/*if (typeof FoodItem !== 'undefined'){
-        FoodItem.map((item, value) => (
-          <View key={value}>
-            <Text> item.value </Text>
-          </View>
-        ))
-      }*/
