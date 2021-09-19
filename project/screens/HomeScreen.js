@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useContext } from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, TextInput,Text, View, Keyboard, Button, TouchableOpacity } from 'react-native';
 //import {Dropdown} from 'react-native-dropdown';
 
 import { IconButton } from '../components';
@@ -14,6 +14,7 @@ let scannedFoods = [];
 let maxCalories = [];
 
 let tempFoodScan = [];
+let fdcId = [];
 
 const firstURL = 'https://api.nal.usda.gov/fdc/v1/foods/search?pageSize=2&api_key=IdOC1aXnE1eBrwNf7OzdqKdA4Flk5ib03AmyuGDo&format=abridged';
 const secondURL = 'https://api.nal.usda.gov/fdc/v1/food/';
@@ -93,6 +94,9 @@ function saveRecipe(fileName) {
 
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                      Main function                                                 //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 export default function HomeScreen({ route, navigation }) {
@@ -117,6 +121,10 @@ export default function HomeScreen({ route, navigation }) {
   return(navigation.navigate('Home'))
   }
 
+  /*handleNameChange(name) {
+  this.setState({ name });
+  }*/
+
 
   FoodItem = route.params;
   return (
@@ -134,6 +142,20 @@ export default function HomeScreen({ route, navigation }) {
       </View>
      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
        <Text>Home Screen</Text>
+       <TextInput
+          style={styles.textInput}
+          placeholder="Food Name"
+          maxLength={20}
+          onBlur={Keyboard.dismiss}
+          //value = 
+          onChangeText={handleSignOut}
+        />
+        <TouchableOpacity
+          style={styles.saveButton}
+          onPress={() => callAPI()}
+        >
+          <Text style={styles.saveButtonText}>Save</Text>
+        </TouchableOpacity>
         <Button
           title="Scan a Barcode"
           onPress={() => navigation.navigate('Scan')}
@@ -145,6 +167,14 @@ export default function HomeScreen({ route, navigation }) {
         <Button
           title="Remove Last Food Item"
           onPress={() => removeLast()}
+        />
+        <Button
+          title="Go to Test"
+          onPress={() => navigation.navigate('Test')}
+        />
+        <Button
+          title="Go to TestAppHome Page"
+          onPress={() => navigation.navigate('HomeApp')}
         />
         <View style={styles.row} >
           <Text>Description ------</Text>
@@ -183,13 +213,24 @@ const styles = StyleSheet.create({
     alignItems : 'flex-start',
     backgroundColor: 'steelblue',
     alignContent : 'flex-start'
+  },
+  textInput: {
+    borderColor: 'grey',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    height: 30,
+    fontSize: 20,
+  },
+  saveButton: {
+    borderWidth: 1,
+    borderColor: '#007BFF',
+    backgroundColor: '#007BFF',
+    padding: 15,
+    margin: 5
+  },
+  saveButtonText: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    textAlign: 'center'
   }
 });
-
-/*if (typeof FoodItem !== 'undefined'){
-        FoodItem.map((item, value) => (
-          <View key={value}>
-            <Text> item.value </Text>
-          </View>
-        ))
-      }*/
