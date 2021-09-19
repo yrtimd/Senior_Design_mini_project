@@ -45,7 +45,8 @@ export default function BarcodeScreen({ navigation }) {
           tempFoodScan = {
             "description" : response.data.description,
             "labels" : response.data.labelNutrients,
-            "ingredients" : response.data.ingredients
+            "ingredients" : response.data.ingredients,
+            "quantity" : 1
           }
           //scannedFoods.push(tempFoodScan)
         } else {

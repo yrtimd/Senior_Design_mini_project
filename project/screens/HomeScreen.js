@@ -12,7 +12,7 @@ const auth = Firebase.auth();
 const database = Firebase.database();
 var FoodItem = [];
 let scannedFoods = [];
-let maxCalories = [];
+let maxCalories = 0;
 
 function writeUserData(userID, scannedFoods) {
   database.ref('users/' + userID).set({
@@ -20,13 +20,29 @@ function writeUserData(userID, scannedFoods) {
   });
 }
 
-function existCheck(SingleItem) {
-  const dataType = typeof(SingleItem);
+function addRecipe(SingleItem) {
+  //const dataType = typeof(SingleItem);
+  var noDuplicate = true;
   
   if (typeof scannedFoods !== 'undefined' && typeof SingleItem !== 'undefined') {
     if (typeof SingleItem.description !== 'undefined')
     {
-      scannedFoods.push(SingleItem)
+      scannedFoods.map(function(item, index)  { 
+        console.log(item.quantity)
+        console.log(SingleItem.quantity)
+        if (item.description === SingleItem.description) {
+          item.quantity += SingleItem.quantity
+          
+          noDuplicate = false
+        }
+      })
+
+      console.log(noDuplicate)
+      console.log(noDuplicate)
+      if (noDuplicate === true) {
+        console.log('OOOpps')
+        scannedFoods.push(SingleItem)
+      }
     }
     writeUserData(userID, scannedFoods);
     return (null);
@@ -36,20 +52,17 @@ function existCheck(SingleItem) {
 function countCalories() {
 
   maxCalories = 0
-  if(typeof scannedFoods !== undefined && typeof scannedFoods.description !== 'undefined'){
+  if(typeof scannedFoods !== 'undefined' && typeof scannedFoods[0] !== 'undefined'){
     scannedFoods.map((item, index) => 
-      maxCalories += tem.labels.calories.value
+      maxCalories += item.labels.calories.value * item.quantity
     )
-  console.log(maxCalories)
-  return(null)
+    maxCalories = Math.round(maxCalories * 100) / 100
   }
+
+  return(maxCalories)
 }
 
-function saveRecipe(fileName) {
-  //var fs = require('react-native-fs')
-  //fs.writeFile("test.json", scannedFoods);
-  //return (null)
-}
+
 
 
 
@@ -80,7 +93,8 @@ export default function HomeScreen({ route, navigation }) {
 
 
   FoodItem = route.params;
-  existCheck(FoodItem);
+  addRecipe(FoodItem);
+  //countCalories();
   return (
 
     <View style={styles.container}>
@@ -109,13 +123,18 @@ export default function HomeScreen({ route, navigation }) {
           onPress={() => removeLast()}
         />
         <View style={styles.row} >
-          <Text>Description ------</Text>
-          <Text>--------- Calories (Cal)</Text>
+          <Text>Total Calories {countCalories()} </Text>
         </View>
-        {scannedFoods.map((item, index) =>
-        <View style={styles.mapRows} key={index.toString()}>
-        <Text>{item.description} </Text>
-        <Text>{item.labels.calories.value} </Text>
+        <View style={styles.tableHeaders} >
+          <Text style={{width: '33%'}}> Description </Text>
+          <Text style={{width: '33%'}}> Calories (Cal) </Text>
+          <Text style={{width: '33%'}}> Quantity </Text>
+        </View>
+          {scannedFoods.map((item, index) =>
+          <View style={styles.mapRows} key={index.toString()}>
+          <Text numberOfLines={1} style={{ width: 250 }}>{item.description} </Text>
+          <Text>{item.labels.calories.value} </Text>
+          <Text>{item.quantity} </Text>
         </View>
         )} 
         </View>
@@ -150,5 +169,13 @@ const styles = StyleSheet.create({
     alignItems : 'flex-start',
     backgroundColor: 'steelblue',
     alignContent : 'flex-start'
+  },
+  tableHeaders: {
+    flexDirection: 'row',
+    //flex: 1,
+    justifyContent: 'center',
+    alignItems : 'stretch',
+    //paddingHorizontal: 70
+    alignContent : 'stretch'
   }
 });
