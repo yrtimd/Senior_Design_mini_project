@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useContext } from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, TextInput,Text, View, Keyboard, Button, TouchableOpacity } from 'react-native';
+import axios from 'axios';
 //import {Dropdown} from 'react-native-dropdown';
 
 import { IconButton } from '../components';
@@ -13,6 +14,7 @@ const database = Firebase.database();
 var FoodItem = [];
 let scannedFoods = [];
 let maxCalories = 0;
+let Foodname = [];
 
 function writeUserData(userID, scannedFoods) {
   database.ref('users/' + userID).set({
@@ -64,6 +66,61 @@ function countCalories() {
 
 
 
+let tempFoodScan = [];
+let fdcId = [];
+
+const firstURL = 'https://api.nal.usda.gov/fdc/v1/foods/search?pageSize=2&api_key=IdOC1aXnE1eBrwNf7OzdqKdA4Flk5ib03AmyuGDo&format=abridged';
+const secondURL = 'https://api.nal.usda.gov/fdc/v1/food/';
+const secondURL_v2 = '?pageSize=1&api_key=IdOC1aXnE1eBrwNf7OzdqKdA4Flk5ib03AmyuGDo';
+
+
+const callAPI = async (barcode_data, opt) => {
+    var baseURL;
+    if (opt == 1) {
+      baseURL = secondURL.concat(barcode_data, secondURL_v2);
+    } else {
+      baseURL = firstURL;
+    }
+
+    await axios
+      .get(baseURL, {
+      params: {
+        query: barcode_data
+      }
+    })
+    .then((response) => {
+
+      if (opt == 1) {
+        tempFoodScan = {
+          "description" : response.data.description,
+          "labels" : response.data.labelNutrients,
+          "ingredients" : response.data.ingredients
+        }
+        //scannedFoods.push(tempFoodScan)
+      } else {
+        tempFoodScan = response.data,
+        fdcId = tempFoodScan.foods[0].fdcId
+        //console.log(tempFoodScan)
+      }   
+    })
+    .catch(err => console.error(err));
+  } //More functional API QUERRY
+
+const handleNameChange = (name) => {
+  Foodname = name;
+};
+
+const HandleAPI = async () => {
+      await callAPI(Foodname, 0);
+      await callAPI(fdcId, 1);
+      addRecipe(tempFoodScan);
+
+};
+
+
+
+
+
 
 
 
@@ -94,7 +151,6 @@ export default function HomeScreen({ route, navigation }) {
 
   FoodItem = route.params;
   addRecipe(FoodItem);
-  //countCalories();
   return (
 
     <View style={styles.container}>
@@ -110,6 +166,20 @@ export default function HomeScreen({ route, navigation }) {
       </View>
      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
        <Text>Home Screen</Text>
+        <TextInput
+          style={styles.textInput}
+          placeholder="Food Name"
+          maxLength={20}
+          onBlur={Keyboard.dismiss}
+          //value = 
+          onChangeText={handleNameChange}
+        />
+        <TouchableOpacity
+          style={styles.saveButton}
+          onPress={() => HandleAPI()}
+        >
+          <Text style={styles.saveButtonText}>Save</Text>
+        </TouchableOpacity>
         <Button
           title="Scan a Barcode"
           onPress={() => navigation.navigate('Scan')}
