@@ -1,8 +1,26 @@
+
 # Senior_Design_mini_project
-Hello! This is the repository for the CE Senior Design Mini Project, written by Jack Halberian and Dmitri Zimin.
+Hello! This is the repository for the CE Senior Design Mini Project, written by Jack Halberian and Dmitry Zimin. The project is a food scanning App coded in React Native and primarily intended for the IOS.
+
+## Project Description/Functionality
+The Project deliver upon the following:
+- Scan bardcodes
+- Call FDA usda REST API
+- Display food description, calories, and quantity
+- Display total quantity
+- User authentication
+- Store data in a databse
+
+Created but not implemented functions can be seen on the API Call branch and MergedAPI+Barcode, specifically a search bar and a Classification of a functional component.
+
+
 ## Setting up the project
 If you haven't done so already, you can download the project by either cloning the repository locally, or downloading the .zip of the project.
 Once you have done this, you will need to install several things:
+```
+clone https://github.com/yrtimd/Senior_Design_mini_project.git
+``` 
+
 1. Install node.js. The link for the latest release can be found here: https://nodejs.org/en/
 Make sure when you install node.js that you also install npm.
 2. Install expo-cli. On Windows open Powershell, or on macOS open terminal.
