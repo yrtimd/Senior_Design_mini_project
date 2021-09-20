@@ -19,6 +19,17 @@ function writeUserData(userID, scannedFoods) {
   });
 }
 
+const readUserData = async (userID) => 
+{
+  await database.ref('users/' + userID).on('value', query => {
+      let data = query.val();
+      if (data === null)
+        scannedFoods = [];
+      else
+        scannedFoods = data.list;
+    });
+}
+
 //Add Recipe to a array of JSONs
 function addRecipe(SingleItem) {
   var noDuplicate = true;
@@ -92,6 +103,7 @@ export default function HomeScreen({ route, navigation }) {
 
   //funnels items from the BarcodeScreen and adds them to the Recipe
   FoodItem = route.params;
+  readUserData(userID); 
   addRecipe(FoodItem);
   return (
     //Display
