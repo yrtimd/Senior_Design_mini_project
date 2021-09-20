@@ -3,14 +3,15 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import React, { Component, useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 
+//API URL for the first & second API calls
 const firstURL = 'https://api.nal.usda.gov/fdc/v1/foods/search?pageSize=2&api_key=IdOC1aXnE1eBrwNf7OzdqKdA4Flk5ib03AmyuGDo&format=abridged';
 const secondURL = 'https://api.nal.usda.gov/fdc/v1/food/';
 const secondURL_v2 = '?pageSize=1&api_key=IdOC1aXnE1eBrwNf7OzdqKdA4Flk5ib03AmyuGDo';
 
 
-//let scannedFoods = [];
 let tempFoodScan = [];
 
+//Main Screen Function
 export default function BarcodeScreen({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
@@ -24,42 +25,42 @@ export default function BarcodeScreen({ navigation }) {
   }, []);
 
 
-
+  //Calls the FDA API
   const callAPI = async (barcode_data, opt) => {
-      var baseURL;
-      if (opt == 1) {
-        baseURL = secondURL.concat(barcode_data, secondURL_v2);
-      } else {
-        baseURL = firstURL;
+    //creates valid URL
+    var baseURL;
+    if (opt == 1) {
+      baseURL = secondURL.concat(barcode_data, secondURL_v2);
+    } else {
+      baseURL = firstURL;
+    }
+
+    //Uses axios to fetch data
+    await axios
+      .get(baseURL, {
+      params: {
+        query: barcode_data
       }
-
-      await axios
-        .get(baseURL, {
-        params: {
-          query: barcode_data
+    })
+    .then((response) => {
+      //Create json file with API data
+      if (opt == 1) {
+        tempFoodScan = { //Second call gets the relevant information
+          "description" : response.data.description,
+          "labels" : response.data.labelNutrients,
+          "ingredients" : response.data.ingredients,
+          "quantity" : 1
         }
-      })
-      .then((response) => {
-
-        if (opt == 1) {
-          tempFoodScan = {
-            "description" : response.data.description,
-            "labels" : response.data.labelNutrients,
-            "ingredients" : response.data.ingredients,
-            "quantity" : 1
-          }
-          //scannedFoods.push(tempFoodScan)
-        } else {
-          tempFoodScan = response.data,
-          this.fdcId = tempFoodScan.foods[0].fdcId
-          //console.log(tempFoodScan)
-        }   
-      })
-      .catch(err => console.error(err));
-    } //More functional API QUERRY
+      } else { //First call only gets FfcID
+        tempFoodScan = response.data,
+        this.fdcId = tempFoodScan.foods[0].fdcId
+      }   
+    })
+    .catch(err => console.error(err));
+  } //More functional API QUERRY
 
 
-
+  //The API calls after the scan
   const handleBarCodeScanned = async ({ type, data }) => {
     setScanned(true);
     let temp = "";
@@ -76,14 +77,12 @@ export default function BarcodeScreen({ navigation }) {
     }
     alert(`Bar code with type ${type} and data ${data} has been scanned and added to your scanned foods.`);
 
-    //console.log(tempFoodScan);
+    //Navigate to Home screen with the json data
     navigation.navigate('Home', tempFoodScan)
-
-    //console.log(navigation);
   };
 
 
-
+  //Permissions
   if (hasPermission === null) {
     return <Text>Requesting for camera permission</Text>;
   }
@@ -91,8 +90,8 @@ export default function BarcodeScreen({ navigation }) {
     return <Text>No access to camera</Text>;
   }
 
-//{scanned && <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />}
   return (
+    //display + function calls
     <View style={styles.container}>
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
