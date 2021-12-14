@@ -31,3 +31,7 @@ This will allow you to run the app on your phone for testing.
 5. In Powershell or Terminal, simply run the following: <code>npm start</code>.
 This will run the app and give you a QR code which you can scan with either the default camera app on iOS or a QR scanner app on Android.
 Once this QR code is scanned, the app will load on Expo Go on your mobile device, and you can begin testing!
+
+
+## Demo ##
+![Imgur Image](https://imgur.com/a/TR8wwhC)
