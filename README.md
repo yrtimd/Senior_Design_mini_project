@@ -34,4 +34,4 @@ Once this QR code is scanned, the app will load on Expo Go on your mobile device
 
 
 ## Demo ##
-![image](/demo.png)
+![image](/demo.PNG)
